@@ -1,10 +1,16 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 )
+
+type Response struct {
+	DisplayName string `json:"display_name"`
+}
 
 func main() {
 	client := &http.Client{}
@@ -20,5 +26,13 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(resp)
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		panic(err)
+	}
+	var response Response
+	json.Unmarshal(body, &response)
+	fmt.Println("Name:", response.DisplayName)
 }
