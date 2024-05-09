@@ -1,10 +1,8 @@
 package main
 
 import (
-	"encoding/json"
+	"biji/bitbucket"
 	"fmt"
-	"io"
-	"net/http"
 	"os"
 	"path/filepath"
 
@@ -19,44 +17,6 @@ type Repository struct {
 	}
 }
 
-func getRepositories() []Repository {
-	client := &http.Client{}
-	req, err := http.NewRequest("GET", "https://api.bitbucket.org/2.0/repositories", nil)
-	if err != nil {
-		panic(err)
-	}
-
-	bbUser := viper.GetString("bitbucket_username")
-	bbPass := viper.GetString("bitbucket_password")
-	if bbUser == "" || bbPass == "" {
-		fmt.Println("Please login using `biji login` command.")
-		os.Exit(1)
-	}
-
-	req.SetBasicAuth(bbUser, bbPass)
-	resp, err := client.Do(req)
-	if err != nil {
-		panic(err)
-	}
-
-	if resp.StatusCode != 200 {
-		fmt.Println("Invalid credentials")
-		os.Exit(1)
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		panic(err)
-	}
-
-	var response struct {
-		Values []Repository
-	}
-	json.Unmarshal(body, &response)
-	return response.Values
-}
-
 func main() {
 	home, err := os.UserHomeDir()
 	if err != nil {
@@ -68,6 +28,10 @@ func main() {
 	viper.SetConfigType("json")
 	viper.ReadInConfig()
 
+	bbUser := viper.GetString("bitbucket_username")
+	bbPass := viper.GetString("bitbucket_password")
+	client := bitbucket.NewClient(bbUser, bbPass)
+
 	app := &cli.App{
 		Name:  "Biji",
 		Usage: "Bitbucket & Jira CLI",
@@ -77,7 +41,7 @@ func main() {
 				Aliases: []string{"repo"},
 				Usage:   "Show all repositories",
 				Action: func(ctx *cli.Context) error {
-					repositories := getRepositories()
+					repositories := client.GetRepositories()
 					for i, repo := range repositories {
 						fmt.Printf("%d. \033[1m%s\033[0m by %s\n", i+1, repo.FullName, repo.Owner.DisplayName)
 					}
