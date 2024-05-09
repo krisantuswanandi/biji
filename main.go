@@ -84,6 +84,12 @@ func main() {
 					app := tview.NewApplication()
 					box := tview.NewBox().SetBackgroundColor(tcell.ColorDefault).SetTitle("Box").SetBorder(true)
 					flex := tview.NewFlex().AddItem(box, 0, 1, false)
+					app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+						if event.Rune() == 'q' {
+							app.Stop()
+						}
+						return event
+					})
 					return app.SetRoot(flex, true).Run()
 				},
 			},
