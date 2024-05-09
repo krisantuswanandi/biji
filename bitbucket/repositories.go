@@ -9,7 +9,7 @@ type Repository struct {
 	}
 }
 
-func (c *Client) GetRepositories() []Repository {
+func (c Client) GetRepositories() []Repository {
 	response := c.DoRequest("GET", "repositories")
 	var result struct {
 		Values []Repository

@@ -23,7 +23,7 @@ func NewClient(username string, password string) Client {
 	}
 }
 
-func (c *Client) DoRequest(method string, path string) []byte {
+func (c Client) DoRequest(method string, path string) []byte {
 	if c.username == "" || c.password == "" {
 		fmt.Println("Please login using `biji login` command.")
 		os.Exit(1)
