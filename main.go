@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/gdamore/tcell/v2"
+	"github.com/rivo/tview"
 	"github.com/spf13/viper"
 	"github.com/urfave/cli/v2"
 )
@@ -72,6 +74,17 @@ func main() {
 					}
 
 					return nil
+				},
+			},
+			{
+				Name:    "interactive",
+				Usage:   "Open interactive mode",
+				Aliases: []string{"ui"},
+				Action: func(ctx *cli.Context) error {
+					app := tview.NewApplication()
+					box := tview.NewBox().SetBackgroundColor(tcell.ColorDefault).SetTitle("Box").SetBorder(true)
+					flex := tview.NewFlex().AddItem(box, 0, 1, false)
+					return app.SetRoot(flex, true).Run()
 				},
 			},
 		},
